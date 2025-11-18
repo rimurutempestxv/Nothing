@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gensyn Term Atlas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://d3js.org/d3.v7.min.js" defer></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"
+      defer
+    ></script>
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <div class="glow"></div>
+    <header>
+      <div>
+        <p class="eyebrow">Interactive glossary</p>
+        <h1>Gensyn Term Atlas</h1>
+        <p class="lede">
+          Explore how Gensyn’s protocol layers, research efforts, and live demos
+          connect. Click any node to learn what it means and why it matters.
+        </p>
+      </div>
+      <button class="shuffle" id="shuffleButton">Shuffle layout</button>
+    </header>
+
+    <main>
+      <section class="graph-panel">
+        <svg id="termGraph" role="img" aria-label="Interactive map of Gensyn terminology"></svg>
+      </section>
+      <aside class="detail-panel quiz-panel" aria-live="polite">
+        <p class="tag">Live challenge</p>
+        <h2>Real-World Protocol Quiz</h2>
+        <p class="lede">
+          Each round asks how a Gensyn breakthrough lands in the real world.
+          Ten timed prompts, four options each, sourced directly from the atlas
+          so every answer is grounded in primary research.
+        </p>
+        <div class="player-card">
+          <p class="theme-label">Username</p>
+          <div class="player-input">
+            <input
+              id="playerNameInput"
+              type="text"
+              placeholder="ex: VerdePilot"
+              autocomplete="off"
+            />
+            <button id="savePlayer" class="secondary-button">Save</button>
+          </div>
+          <p class="player-status" id="playerStatus">
+            Set your username to unlock the quiz.
+          </p>
+        </div>
+        <div class="quiz-status">
+          <div>
+            <p class="theme-label">Timer</p>
+            <h3 id="quizTimer">00:30</h3>
+          </div>
+          <div>
+            <p class="theme-label">Question</p>
+            <h3 id="quizProgress">0 / 10</h3>
+          </div>
+          <div>
+            <p class="theme-label">Score</p>
+            <h3 id="quizScore">0 pts</h3>
+          </div>
+        </div>
+        <div class="quiz-card">
+          <h3 id="questionTitle">Press Start to begin</h3>
+          <p id="questionSource">Source: Select start</p>
+          <div class="option-grid" id="optionGrid">
+            <button class="option-button" disabled>Option A</button>
+            <button class="option-button" disabled>Option B</button>
+            <button class="option-button" disabled>Option C</button>
+            <button class="option-button" disabled>Option D</button>
+          </div>
+          <button id="startQuiz" class="primary-button">Start quiz</button>
+        </div>
+        <div class="scoreboard">
+          <h3>How to play</h3>
+          <ul>
+            <li>
+              <span>Questions tie nodes to real deployments or scenarios.</span>
+            </li>
+            <li>
+              <span>Answers cite the same documentation linked in the atlas.</span>
+            </li>
+            <li><span>30 seconds per prompt. 10 total rounds.</span></li>
+          </ul>
+          <p class="score-note">
+            Share your final badge after 10 questions—use it as proof-of-knowledge
+            in community events or social posts.
+          </p>
+        </div>
+      </aside>
+    </main>
+
+    <div class="card-overlay" id="cardOverlay" aria-hidden="true">
+      <div class="card-shell" role="dialog" aria-modal="true">
+        <button class="card-close" id="cardClose" aria-label="Close deep dive card">
+          ×
+        </button>
+        <div class="card-content" id="cardCanvas">
+          <p class="card-tag" id="cardTag">Category</p>
+          <h3 id="cardTitle">Node title</h3>
+          <p class="card-description" id="cardDescription">
+            Description placeholder describing the selected node in more depth.
+          </p>
+          <dl class="card-meta">
+            <div>
+              <dt>Connections</dt>
+              <dd id="cardConnections">0</dd>
+            </div>
+            <div>
+              <dt>Source</dt>
+              <dd id="cardSource">gensyn.ai</dd>
+            </div>
+          </dl>
+          <div class="card-actions">
+            <a id="cardLink" href="#" target="_blank" rel="noopener">Open source ↗</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-overlay" id="scoreOverlay" aria-hidden="true">
+      <div class="card-shell score-shell" role="dialog" aria-modal="true">
+        <button class="card-close" id="scoreClose" aria-label="Close scorecard">
+          ×
+        </button>
+        <div class="card-content" id="scoreCanvas">
+          <p class="card-tag">Quiz summary</p>
+          <h3 id="scoreTitle">Your Gensyn IQ</h3>
+          <p class="card-description" id="scoreDescription">
+            Complete all ten questions to generate a personalized badge.
+          </p>
+          <div class="score-banner">
+            <p id="scoreCallout">Protocol Pathfinder</p>
+            <span>Gensyn Term Atlas</span>
+          </div>
+          <dl class="card-meta">
+            <div>
+              <dt>Player</dt>
+              <dd id="scorePlayer">—</dd>
+            </div>
+            <div>
+              <dt>Score</dt>
+              <dd id="scoreValue">0 / 10</dd>
+            </div>
+            <div>
+              <dt>Accuracy</dt>
+              <dd id="scoreAccuracy">0%</dd>
+            </div>
+          </dl>
+          <p class="card-remark" id="scoreRemark">
+            Answer the prompts to unlock custom remarks.
+          </p>
+          <div class="card-actions">
+            <button id="scoreDownload">Download badge</button>
+            <button id="scoreRestart">Play again</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+
